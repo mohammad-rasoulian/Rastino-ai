@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== Background ===== */
+body {
+  background: radial-gradient(circle at 20% 20%, #1a1a2e, #0f0f1a);
+  color: #fff;
+  font-family: sans-serif;
+}
+
+/* ===== Glass Effect ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Chat Bubble ===== */
+.chat-user {
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  padding: 10px 14px;
+  border-radius: 16px;
+  align-self: flex-end;
+  max-width: 70%;
+}
+
+.chat-ai {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  border-radius: 16px;
+  align-self: flex-start;
+  max-width: 70%;
+}
+
+/* ===== Input ===== */
+.input-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+  color: white;
+  outline: none;
+}
+
+.input-box::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+/* ===== Button ===== */
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 10px;
+}
