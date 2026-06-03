@@ -1,0 +1,14 @@
+{
+  "source": "manual",
+  "books": [
+    {
+      "file": "data/student-books/inbox/example.pdf",
+      "grade": 12,
+      "track": "math",
+      "subject": "ریاضی",
+      "title": "ریاضی ۳",
+      "edition": "۱۴۰۴",
+      "sourceUrl": ""
+    }
+  ]
+}

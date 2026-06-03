@@ -1,0 +1,229 @@
+.settings-hero-card,
+.settings-panel-card {
+  border: 1px solid #242424;
+  border-radius: 26px;
+  background: #101010;
+  padding: 16px;
+}
+
+.settings-hero-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 45%),
+    #101010;
+}
+
+.settings-option {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid #292929;
+  background: #151515;
+  padding: 14px;
+  text-align: right;
+  color: #f5f5f5;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.settings-option:hover {
+  transform: translateY(-1px);
+  border-color: #3a3a3a;
+  background: #1d1d1d;
+}
+
+.settings-option-active {
+  border-color: #f5f5f5;
+  background: #f5f5f5;
+  color: #070707;
+}
+
+.settings-reset-button {
+  width: 100%;
+  height: 52px;
+  border-radius: 22px;
+  border: 1px solid #303030;
+  background: #151515;
+  color: #f5f5f5;
+  font-size: 14px;
+  font-weight: 900;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.settings-reset-button:hover {
+  transform: translateY(-1px);
+  border-color: #444;
+  background: #1d1d1d;
+}
+
+/* Light theme */
+
+html[data-theme="light"] body {
+  background: #f4f5f7;
+  color: #111827;
+}
+
+html[data-theme="light"] .app-shell {
+  background:
+    radial-gradient(circle at top right, rgba(0, 0, 0, 0.045), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(0, 0, 0, 0.035), transparent 28%),
+    #f4f5f7;
+}
+
+html[data-theme="light"] .r-sidebar {
+  background: #ffffff;
+  border-left-color: #e5e7eb;
+}
+
+html[data-theme="light"] .r-muted {
+  color: #6b7280;
+}
+
+html[data-theme="light"] .r-surface,
+html[data-theme="light"] .r-surface-2,
+html[data-theme="light"] .r-input,
+html[data-theme="light"] .r-secondary,
+html[data-theme="light"] .r-pill,
+html[data-theme="light"] .message-assistant,
+html[data-theme="light"] .settings-hero-card,
+html[data-theme="light"] .settings-panel-card,
+html[data-theme="light"] .account-panel-card,
+html[data-theme="light"] .account-hero-card,
+html[data-theme="light"] .image-panel-section,
+html[data-theme="light"] .image-result-card {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #111827;
+  box-shadow: 0 14px 45px rgba(15, 23, 42, 0.05);
+}
+
+html[data-theme="light"] .message-user,
+html[data-theme="light"] .r-primary,
+html[data-theme="light"] .r-active,
+html[data-theme="light"] .r-pill-active {
+  background: #111827;
+  color: #ffffff;
+}
+
+html[data-theme="light"] .r-primary:hover {
+  background: #000000;
+}
+
+html[data-theme="light"] .r-secondary:hover,
+html[data-theme="light"] .r-hover:hover {
+  background: #f3f4f6;
+}
+
+html[data-theme="light"] .r-mini-icon-button,
+html[data-theme="light"] .r-nav-icon-wrap,
+html[data-theme="light"] .r-sidebar-bottom-icon,
+html[data-theme="light"] .account-stat-card,
+html[data-theme="light"] .account-plan-card,
+html[data-theme="light"] .settings-option,
+html[data-theme="light"] .settings-reset-button,
+html[data-theme="light"] .image-model-card,
+html[data-theme="light"] .image-ratio-button,
+html[data-theme="light"] .image-quality-row,
+html[data-theme="light"] .image-empty-icon,
+html[data-theme="light"] .image-idea-card {
+  background: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+html[data-theme="light"] .r-nav-card {
+  color: #374151 !important;
+}
+
+html[data-theme="light"] .r-nav-card:hover {
+  background: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+html[data-theme="light"] .r-nav-card-active,
+html[data-theme="light"] .settings-option-active,
+html[data-theme="light"] .image-model-card-active,
+html[data-theme="light"] .image-ratio-button-active,
+html[data-theme="light"] .image-quality-row-active {
+  background: #111827 !important;
+  border-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .r-nav-card-active .r-nav-icon-wrap {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+html[data-theme="light"] .markdown-pre,
+html[data-theme="light"] .markdown-message .katex-display {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+html[data-theme="light"] .markdown-code-inline {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #111827;
+}
+
+html[data-theme="light"] [class*="bg-[#080808]"],
+html[data-theme="light"] [class*="bg-[#090909]"],
+html[data-theme="light"] [class*="bg-[#101010]"],
+html[data-theme="light"] [class*="bg-[#111]"],
+html[data-theme="light"] [class*="bg-[#151515]"] {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] [class*="border-[#181818]"],
+html[data-theme="light"] [class*="border-[#202020]"],
+html[data-theme="light"] [class*="border-[#242424]"],
+html[data-theme="light"] [class*="border-[#2a2a2a]"] {
+  border-color: #e5e7eb !important;
+}
+
+html[data-theme="light"] [class*="text-zinc-100"],
+html[data-theme="light"] [class*="text-zinc-300"],
+html[data-theme="light"] [class*="text-zinc-400"],
+html[data-theme="light"] [class*="text-white"] {
+  color: #111827 !important;
+}
+
+/* Text size */
+
+html[data-text-size="large"] .markdown-message,
+html[data-text-size="large"] textarea,
+html[data-text-size="large"] input {
+  font-size: 17px;
+}
+
+html[data-text-size="large"] .message-user,
+html[data-text-size="large"] .message-assistant {
+  font-size: 17px;
+}
+
+/* Density */
+
+html[data-density="compact"] .r-nav-card {
+  min-height: 52px;
+}
+
+html[data-density="compact"] .message-user,
+html[data-density="compact"] .message-assistant {
+  padding: 0.8rem 1rem;
+}
+
+/* Reduced motion */
+
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

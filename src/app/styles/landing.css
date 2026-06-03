@@ -1,0 +1,189 @@
+.landing-shell {
+  background:
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 10% 70%, rgba(255, 255, 255, 0.055), transparent 30%),
+    #070707;
+}
+
+.landing-badge {
+  display: inline-flex;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  background: #111;
+  padding: 8px 14px;
+  color: #d4d4d8;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.landing-login-button,
+.landing-primary-button,
+.landing-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  font-weight: 900;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.landing-login-button {
+  height: 42px;
+  padding: 0 16px;
+  background: #f5f5f5;
+  color: #070707;
+  font-size: 13px;
+}
+
+.landing-primary-button {
+  min-height: 52px;
+  padding: 0 24px;
+  background: #f5f5f5;
+  color: #070707;
+}
+
+.landing-secondary-button {
+  min-height: 52px;
+  padding: 0 24px;
+  border: 1px solid #2a2a2a;
+  background: #111;
+  color: #f5f5f5;
+}
+
+.landing-login-button:hover,
+.landing-primary-button:hover,
+.landing-secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.landing-primary-button:hover,
+.landing-login-button:hover {
+  background: #ffffff;
+}
+
+.landing-secondary-button:hover {
+  border-color: #3a3a3a;
+  background: #181818;
+}
+
+.landing-mini-stat,
+.landing-card,
+.landing-preview-card,
+.landing-tool-card,
+.landing-wide-card,
+.landing-plan-card,
+.landing-final-cta {
+  border: 1px solid #242424;
+  background: rgba(16, 16, 16, 0.82);
+  box-shadow:
+    0 24px 90px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.landing-mini-stat {
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.landing-mini-stat b {
+  display: block;
+  font-size: 15px;
+}
+
+.landing-mini-stat span {
+  margin-top: 5px;
+  display: block;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.landing-preview-card {
+  border-radius: 34px;
+  padding: 22px;
+  backdrop-filter: blur(18px);
+}
+
+.landing-message {
+  max-width: 88%;
+  border-radius: 24px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.landing-message-user {
+  margin-right: auto;
+  background: #f5f5f5;
+  color: #070707;
+}
+
+.landing-message-ai {
+  margin-left: auto;
+  border: 1px solid #252525;
+  background: #111;
+  color: #f5f5f5;
+}
+
+.landing-tool-card {
+  border-radius: 20px;
+  padding: 16px;
+  color: #d4d4d8;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.landing-card {
+  min-height: 210px;
+  border-radius: 28px;
+  padding: 22px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.landing-card:hover {
+  transform: translateY(-3px);
+  border-color: #3a3a3a;
+  background: rgba(22, 22, 22, 0.95);
+}
+
+.landing-wide-card {
+  border-radius: 34px;
+  padding: 30px;
+}
+
+.landing-plan-card {
+  border-radius: 30px;
+  padding: 24px;
+}
+
+.landing-plan-card-active {
+  border-color: rgba(255, 255, 255, 0.72);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.11), transparent 45%),
+    #111;
+}
+
+.landing-plan-badge {
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #070707;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.landing-final-cta {
+  display: flex;
+  min-height: 360px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 38px;
+  padding: 32px;
+  text-align: center;
+}

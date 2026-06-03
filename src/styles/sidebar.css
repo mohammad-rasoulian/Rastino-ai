@@ -1,0 +1,237 @@
+.r-sidebar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 28%),
+    #070707;
+  border-left: 1px solid #202020;
+}
+
+.r-mini-icon-button {
+  display: flex;
+  height: 42px;
+  width: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid #252525;
+  background: #121212;
+  color: #e5e5e5;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.r-mini-icon-button:hover {
+  transform: translateY(-1px);
+  border-color: #3a3a3a;
+  background: #1a1a1a;
+}
+
+.r-new-chat-button {
+  position: relative;
+  overflow: hidden;
+  background: #f5f5f5;
+  color: #070707;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.r-new-chat-button:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.r-nav-card {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 22px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d4d4d8;
+  box-shadow: none;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.r-nav-card:hover {
+  transform: translateX(-2px);
+  border-color: #252525;
+  background: #131313;
+  color: #ffffff;
+}
+
+.r-nav-card-active {
+  background: #f5f5f5;
+  border-color: #f5f5f5;
+  color: #070707;
+}
+
+.r-nav-card-active:hover {
+  background: #ffffff;
+  color: #070707;
+}
+
+.r-nav-icon-wrap {
+  position: relative;
+  display: flex;
+  height: 42px;
+  width: 42px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  color: #f5f5f5;
+  box-shadow: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease,
+    color 180ms ease;
+}
+
+.r-nav-icon-wrap svg {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.r-nav-card:hover .r-nav-icon-wrap {
+  background: #202020;
+  border-color: #3b3b3b;
+  transform: scale(1.04);
+}
+
+.r-nav-card:hover .r-nav-icon-wrap svg {
+  transform: translateY(-1px) scale(1.06);
+  opacity: 1;
+}
+
+.r-nav-card-active .r-nav-icon-wrap {
+  background: #070707;
+  border-color: #070707;
+  color: #ffffff;
+}
+
+.r-nav-card-active:hover .r-nav-icon-wrap {
+  background: #000000;
+  border-color: #000000;
+}
+
+.r-sidebar-bottom-button {
+  display: flex;
+  height: 44px;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  border-radius: 16px;
+  padding: 0 12px;
+  background: transparent;
+  color: #d4d4d8;
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.r-sidebar-bottom-button:hover {
+  transform: translateY(-1px);
+  background: #151515;
+  color: #ffffff;
+}
+
+.r-sidebar-bottom-icon {
+  display: flex;
+  height: 30px;
+  width: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  box-shadow: none;
+  transition: transform 180ms ease;
+}
+
+.r-sidebar-bottom-button:hover .r-sidebar-bottom-icon {
+  transform: scale(1.04);
+}
+
+/* Image chats in history */
+
+.image-history-item {
+  position: relative;
+  overflow: hidden;
+  color: #f5f5f5;
+  background:
+    linear-gradient(#101010, #101010) padding-box,
+    linear-gradient(
+      120deg,
+      rgba(80, 180, 255, 0.7),
+      rgba(180, 90, 255, 0.7),
+      rgba(255, 80, 170, 0.7),
+      rgba(80, 255, 210, 0.7)
+    ) border-box;
+  border: 1px solid transparent;
+}
+
+.image-history-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    rgba(80, 180, 255, 0.08),
+    rgba(180, 90, 255, 0.08),
+    rgba(255, 80, 170, 0.08),
+    rgba(80, 255, 210, 0.08)
+  );
+  opacity: 0.75;
+  transition: opacity 180ms ease;
+}
+
+.image-history-item:hover::before {
+  opacity: 1;
+}
+
+.image-history-item-active {
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 10px 35px rgba(120, 120, 255, 0.12);
+}
+
+.image-history-badge {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    120deg,
+    rgba(80, 180, 255, 0.28),
+    rgba(180, 90, 255, 0.28),
+    rgba(255, 80, 170, 0.28)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.image-history-item > * {
+  position: relative;
+  z-index: 1;
+}

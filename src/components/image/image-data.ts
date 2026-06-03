@@ -1,0 +1,297 @@
+import type {
+  AspectRatio,
+  ImageModelId,
+  ImageModelInfo,
+  ImageQualityInfo,
+} from "./types";
+
+export const defaultImageModel: ImageModelId = "gapgpt/z-image";
+
+export const imageModels: ImageModelInfo[] = [
+  {
+    id: "gapgpt/z-image",
+    name: "Z Image",
+    titleFa: "اقتصادی و سریع",
+    badge: "Free",
+    description: "مدل ارزان برای تست ایده، خروجی ساده و استفاده سبک",
+    tier: "free",
+    creditCost: 1,
+    estimatedTime: "۳۰ تا ۶۰ ثانیه",
+  },
+
+  {
+    id: "imagen-4.0-fast-generate-001",
+    name: "Imagen 4 Fast",
+    titleFa: "سریع و تمیز",
+    badge: "Plus",
+    description: "گزینه سریع برای تصویرهای روزمره، بنر و پست ساده",
+    tier: "plus",
+    creditCost: 3,
+    estimatedTime: "۳۰ تا ۶۰ ثانیه",
+  },
+  {
+    id: "gemini-2.5-flash-image",
+    name: "Gemini Flash Image",
+    titleFa: "هوشمند و متعادل",
+    badge: "Plus",
+    description: "مدل متعادل برای خروجی تمیز و کاربردی",
+    tier: "plus",
+    creditCost: 6,
+    estimatedTime: "۴۵ تا ۹۰ ثانیه",
+  },
+  {
+    id: "dall-e-3",
+    name: "DALL·E 3",
+    titleFa: "خلاق و کلاسیک",
+    badge: "Plus",
+    description: "مدل شناخته‌شده برای تصویرهای خلاقانه و پوستر",
+    tier: "plus",
+    creditCost: 6,
+    estimatedTime: "۴۵ تا ۹۰ ثانیه",
+  },
+
+  {
+    id: "imagen-4.0-ultra-generate-001",
+    name: "Imagen 4 Ultra",
+    titleFa: "دقیق و باکیفیت",
+    badge: "Pro",
+    description: "کیفیت بالاتر برای خروجی حرفه‌ای‌تر",
+    tier: "pro",
+    creditCost: 8,
+    estimatedTime: "۶۰ تا ۱۲۰ ثانیه",
+  },
+  {
+    id: "gemini-3.1-flash-image-preview",
+    name: "Gemini 3.1 Flash Image",
+    titleFa: "حرفه‌ای و سریع",
+    badge: "Pro",
+    description: "مدل حرفه‌ای مناسب خروجی‌های جدی و تبلیغاتی",
+    tier: "pro",
+    creditCost: 10,
+    estimatedTime: "۶۰ تا ۱۲۰ ثانیه",
+  },
+  {
+    id: "gpt-image-1-mini",
+    name: "GPT Image 1 Mini",
+    titleFa: "جی‌پی‌تی اقتصادی",
+    badge: "Pro",
+    description: "کیفیت خوب با هزینه کنترل‌شده‌تر از GPT Image 2",
+    tier: "pro",
+    creditCost: 25,
+    estimatedTime: "۶۰ تا ۱۵۰ ثانیه",
+  },
+  {
+    id: "gpt-image-2",
+    name: "GPT Image 2",
+    titleFa: "بهترین کیفیت",
+    badge: "Pro",
+    description: "گران‌ترین گزینه برای خروجی بسیار باکیفیت و حرفه‌ای",
+    tier: "pro",
+    creditCost: 80,
+    estimatedTime: "۹۰ تا ۱۸۰ ثانیه",
+  },
+];
+
+export const styles = [
+  "سینمایی",
+  "واقع‌گرایانه",
+  "مینیمال",
+  "پوستر تبلیغاتی",
+  "سه‌بعدی",
+  "ایزومتریک",
+  "انیمه",
+  "لوکس و تاریک",
+];
+
+export const imageStyles = styles;
+
+export const aspectRatios: AspectRatio[] = [
+  "1:1",
+  "16:9",
+  "9:16",
+  "4:3",
+  "3:4",
+];
+
+export const qualities: ImageQualityInfo[] = [
+  { id: "standard", label: "Standard", hint: "سریع و اقتصادی" },
+  { id: "high", label: "High", hint: "جزئیات بیشتر" },
+  { id: "ultra", label: "Ultra", hint: "کیفیت نمایشی" },
+];
+
+export const imageQualities = qualities;
+
+export type ImagePresetId =
+  | "social-post"
+  | "story"
+  | "website-banner"
+  | "ad-poster"
+  | "logo-concept"
+  | "product-shot"
+  | "profile"
+  | "wallpaper";
+
+export const imagePresets: {
+  id: ImagePresetId;
+  title: string;
+  badge: string;
+  aspectRatio: AspectRatio;
+  style: string;
+  quality: "standard" | "high" | "ultra";
+  promptHint: string;
+}[] = [
+  {
+    id: "social-post",
+    title: "پست شبکه اجتماعی",
+    badge: "1:1",
+    aspectRatio: "1:1",
+    style: "پوستر تبلیغاتی",
+    quality: "high",
+    promptHint:
+      "ترکیب‌بندی مربعی، متن خوانا، کنتراست بالا، مناسب پست اینستاگرام",
+  },
+  {
+    id: "story",
+    title: "استوری",
+    badge: "9:16",
+    aspectRatio: "9:16",
+    style: "سینمایی",
+    quality: "high",
+    promptHint:
+      "ترکیب عمودی، سوژه مرکزی، فضای مناسب برای متن، مناسب موبایل",
+  },
+  {
+    id: "website-banner",
+    title: "بنر سایت",
+    badge: "16:9",
+    aspectRatio: "16:9",
+    style: "مینیمال",
+    quality: "high",
+    promptHint:
+      "بنر افقی، فضای خالی برای تیتر، ظاهر حرفه‌ای و مناسب صفحه اصلی سایت",
+  },
+  {
+    id: "ad-poster",
+    title: "پوستر تبلیغاتی",
+    badge: "Ad",
+    aspectRatio: "4:3",
+    style: "پوستر تبلیغاتی",
+    quality: "ultra",
+    promptHint:
+      "ظاهر تبلیغاتی، تمرکز روی پیام اصلی، نورپردازی جذاب و خروجی آماده کمپین",
+  },
+  {
+    id: "logo-concept",
+    title: "کانسپت لوگو",
+    badge: "Logo",
+    aspectRatio: "1:1",
+    style: "مینیمال",
+    quality: "high",
+    promptHint:
+      "لوگوی ساده، قابل تشخیص، مینیمال، بدون جزئیات اضافه، مناسب برند مدرن",
+  },
+  {
+    id: "product-shot",
+    title: "تصویر محصول",
+    badge: "Product",
+    aspectRatio: "4:3",
+    style: "واقع‌گرایانه",
+    quality: "ultra",
+    promptHint:
+      "نمای محصول، پس‌زمینه تمیز، نورپردازی استودیویی، حس واقعی و حرفه‌ای",
+  },
+  {
+    id: "profile",
+    title: "تصویر پروفایل",
+    badge: "Avatar",
+    aspectRatio: "1:1",
+    style: "سه‌بعدی",
+    quality: "high",
+    promptHint:
+      "آواتار یا تصویر پروفایل، سوژه مرکزی، ظاهر تمیز و قابل استفاده در شبکه‌های اجتماعی",
+  },
+  {
+    id: "wallpaper",
+    title: "والپیپر",
+    badge: "16:9",
+    aspectRatio: "16:9",
+    style: "لوکس و تاریک",
+    quality: "ultra",
+    promptHint:
+      "تصویر عریض، جزئیات زیاد، فضای چشم‌نواز، مناسب پس‌زمینه دسکتاپ یا موبایل",
+  },
+];
+
+export const brandTones = [
+  "لوکس و تیره",
+  "مینیمال و تمیز",
+  "دوستانه و گرم",
+  "آینده‌نگر و تکنولوژیک",
+  "پرانرژی و رنگی",
+  "رسمی و قابل اعتماد",
+];
+
+export const promptIdeas = [
+  "یک تصویر تبلیغاتی حرفه‌ای برای برند راستینو",
+  "یک فضای کاری مدرن با نور ملایم، لپ‌تاپ و یادداشت‌ها",
+  "کاور اینستاگرام برای معرفی یک ابزار هوش مصنوعی",
+  "لوگوی مینیمال برای اپلیکیشن هوشمند با حس آینده‌نگر",
+];
+
+export type ImageBoostId =
+  | "premium-ad"
+  | "cinematic-light"
+  | "clean-product"
+  | "persian-typography"
+  | "luxury-dark"
+  | "viral-social";
+
+export const imageBoosts: {
+  id: ImageBoostId;
+  title: string;
+  description: string;
+  promptAddon: string;
+}[] = [
+  {
+    id: "premium-ad",
+    title: "تبلیغاتی حرفه‌ای",
+    description: "برای کمپین، بنر و معرفی محصول",
+    promptAddon:
+      "ظاهر تصویر شبیه یک تبلیغ حرفه‌ای برندهای بزرگ باشد؛ پیام اصلی واضح، ترکیب‌بندی جذاب، نورپردازی کنترل‌شده و خروجی آماده کمپین تبلیغاتی باشد.",
+  },
+  {
+    id: "cinematic-light",
+    title: "نور سینمایی",
+    description: "عمق، کنتراست و حس فیلمی",
+    promptAddon:
+      "نورپردازی سینمایی، عمق میدان، کنتراست کنترل‌شده، هایلایت‌های نرم و حس بصری شبیه فریم فیلم حرفه‌ای داشته باشد.",
+  },
+  {
+    id: "clean-product",
+    title: "محصول تمیز",
+    description: "برای معرفی اپ، کالا یا سرویس",
+    promptAddon:
+      "تمرکز تصویر روی محصول یا سرویس باشد؛ پس‌زمینه تمیز، فضای منفی مناسب، حس قابل اعتماد و خروجی مناسب صفحه محصول داشته باشد.",
+  },
+  {
+    id: "persian-typography",
+    title: "تایپوگرافی فارسی",
+    description: "برای پوستر و کاور فارسی",
+    promptAddon:
+      "اگر متن فارسی داخل تصویر وجود دارد، باید کوتاه، خوانا، درست، تمیز و هماهنگ با ترکیب‌بندی باشد. از متن‌های طولانی و نوشته‌های خراب پرهیز شود.",
+  },
+  {
+    id: "luxury-dark",
+    title: "لوکس و تاریک",
+    description: "استایل مشکی، پریمیوم و شیک",
+    promptAddon:
+      "فضای تصویر لوکس، تیره، مینیمال و پریمیوم باشد؛ رنگ‌های مشکی، خاکستری، سفید و نورهای ظریف برای حس حرفه‌ای استفاده شود.",
+  },
+  {
+    id: "viral-social",
+    title: "وایرال شبکه اجتماعی",
+    description: "برای جلب توجه سریع",
+    promptAddon:
+      "تصویر باید در نگاه اول توجه کاربر را جلب کند؛ سوژه واضح، کنتراست بالا، پیام سریع، قاب‌بندی جذاب و مناسب شبکه‌های اجتماعی باشد.",
+  },
+];

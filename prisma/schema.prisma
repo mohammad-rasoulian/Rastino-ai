@@ -1,0 +1,465 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id     String  @id @default(cuid())
+  email  String? @unique
+  mobile String? @unique
+  name   String?
+
+  role   String @default("user")
+  status String @default("active")
+  plan   String @default("free")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chats            Chat[]
+  messages         Message[]
+  wallet           Wallet?
+  sessions         Session[]
+  otpCodes         OtpCode[]
+  subscriptions    Subscription[]
+  usageLogs        UsageLog[]
+  adminActions     AdminAction[]
+  imageGenerations ImageGeneration[]
+
+  studentStudyPlans    StudentStudyPlan[]
+  studentStudyTasks    StudentStudyTask[]
+  studentStudyStats    StudentStudyStat[]
+  studentCoachMessages StudentCoachMessage[]
+
+  @@index([role])
+  @@index([status])
+  @@index([plan])
+}
+
+model Chat {
+  id     String @id @default(cuid())
+  title  String
+  type   String @default("chat")
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages         Message[]
+  imageGenerations ImageGeneration[]
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Message {
+  id      String @id @default(cuid())
+  content String
+  role    String
+
+  model    String?
+  provider String?
+  metadata String?
+
+  inputTokens  Int   @default(0)
+  outputTokens Int   @default(0)
+  totalTokens  Int   @default(0)
+  costUsd      Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([chatId])
+  @@index([userId])
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Wallet {
+  id       String @id @default(cuid())
+  balance  Int    @default(0)
+  currency String @default("IRR")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String  @id @default(cuid())
+  amount      Int
+  type        String
+  status      String  @default("success")
+  description String?
+
+  authority String?
+  refId     String?
+  provider  String?
+
+  createdAt DateTime @default(now())
+
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  mobile    String
+  codeHash  String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([mobile])
+  @@index([used])
+  @@index([expiresAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Plan {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  name        String
+  description String?
+  price       Int     @default(0)
+  currency    String  @default("IRR")
+
+  monthlyMessages Int @default(0)
+  dailyMessages   Int @default(0)
+  maxInputTokens  Int @default(2000)
+  maxOutputTokens Int @default(2000)
+
+  allowFiles  Boolean @default(false)
+  allowImages Boolean @default(false)
+  allowOcr    Boolean @default(false)
+  priority    Int     @default(0)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@index([key])
+  @@index([isActive])
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  status String @default("active")
+
+  startedAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model UsageLog {
+  id       String  @id @default(cuid())
+  scope    String
+  action   String
+  model    String?
+  provider String?
+
+  inputTokens  Int   @default(0)
+  outputTokens Int   @default(0)
+  totalTokens  Int   @default(0)
+  costUsd      Float @default(0)
+  creditCost   Int   @default(0)
+
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([scope])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model PromptTemplate {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  title       String
+  category    String
+  description String?
+  content     String
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ImageGeneration {
+  id             String  @id @default(cuid())
+  prompt         String
+  negativePrompt String?
+  model          String
+  style          String?
+  aspectRatio    String?
+  quality        String?
+  imageUrl       String
+  metadata       String?
+
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chatId String?
+  chat   Chat?   @relation(fields: [chatId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([chatId])
+  @@index([model])
+  @@index([createdAt])
+}
+
+model AdminAction {
+  id          String  @id @default(cuid())
+  action      String
+  targetType  String?
+  targetId    String?
+  description String?
+  metadata    String?
+
+  createdAt DateTime @default(now())
+
+  adminId String?
+  admin   User?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([targetType])
+  @@index([createdAt])
+}
+
+model SiteContent {
+  id       String  @id @default(cuid())
+  key      String  @unique
+  label    String
+  group    String  @default("general")
+  type     String  @default("text")
+  value    String
+  isPublic Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+  @@index([isPublic])
+}
+
+model StudentBook {
+  id              String    @id @default(cuid())
+  grade           Int
+  track           String    @default("general")
+  subject         String
+  title           String
+  edition         String?
+  sourceUrl       String?
+  fileName        String?
+  status          String    @default("active")
+  metadata        String?
+  storageProvider String?
+  storageKey      String?
+  mimeType        String?
+  fileSizeBytes   Int?
+  pageCount       Int?
+  chunkCount      Int       @default(0)
+  ingestionStatus String    @default("not_uploaded")
+  ingestionError  String?
+  lastIngestedAt  DateTime?
+  vectorStatus    String    @default("pending")
+  ocrStatus       String    @default("not_required")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chunks StudentBookChunk[]
+
+  @@unique([grade, track, subject, title])
+  @@index([grade])
+  @@index([track])
+  @@index([subject])
+  @@index([status])
+  @@index([ingestionStatus])
+}
+
+model StudentBookChunk {
+  id     String      @id @default(cuid())
+  bookId String
+  book   StudentBook @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  grade    Int
+  track    String  @default("general")
+  subject  String
+  page     Int?
+  chapter  String?
+  section  String?
+  content  String
+  keywords String?
+  metadata String?
+
+  createdAt DateTime @default(now())
+
+  @@index([bookId])
+  @@index([grade])
+  @@index([track])
+  @@index([subject])
+  @@index([page])
+}
+
+model StudentStudyPlan {
+  id        String   @id @default(cuid())
+  title     String
+  weekStart DateTime
+  weekEnd   DateTime
+  status    String   @default("active")
+  metadata  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks StudentStudyTask[]
+
+  @@index([userId])
+  @@index([weekStart])
+  @@index([status])
+}
+
+model StudentStudyTask {
+  id          String  @id @default(cuid())
+  dayIndex    Int
+  subject     String
+  bookTitle   String?
+  title       String
+  description String?
+  minutes     Int     @default(45)
+  status      String  @default("todo")
+  progress    Int     @default(0)
+  metadata    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId String?
+  plan   StudentStudyPlan? @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([planId])
+  @@index([dayIndex])
+  @@index([status])
+}
+
+model StudentStudyStat {
+  id              String  @id @default(cuid())
+  subject         String
+  bookTitle       String?
+  studiedMinutes  Int     @default(0)
+  readiness       Int     @default(0)
+  solvedQuestions Int     @default(0)
+  metadata        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subject, bookTitle])
+  @@index([userId])
+  @@index([subject])
+}
+
+model StudentCoachMessage {
+  id       String  @id @default(cuid())
+  role     String
+  content  String
+  metadata String?
+
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([role])
+  @@index([createdAt])
+}
+
+model StudentBookImportJob {
+  id       String  @id @default(cuid())
+  status   String  @default("queued")
+  source   String  @default("manual")
+  filePath String?
+  manifest String?
+  error    String?
+  metadata String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+}

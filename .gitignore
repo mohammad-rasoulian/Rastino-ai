@@ -1,41 +1,53 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+node_modules/
+.next/
+out/
+.vercel/
+.turbo/
+.env
+.env.*
+!.env.example
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.sqlite
+*.sqlite3
+backups/
+*.tar.gz
+*.zip
+*.log
+public/generated/
+data/student-books/inbox/
+data/student-books/storage/
+data/student-books/raw/
+data/student-books/downloads-temp/
+data/student-books/catalog-cache/
+data/student-books/book-page-cache/
+data/student-books/reports/
+data/student-books/manifests/chap-*.json
+data/student-books/manifests/manual-books-*.json
 .DS_Store
-*.pem
+.vscode/
+.idea/
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# extra local backups
+.backups/
+tmp/
 
-# env files (can opt-in for committing if needed)
-.env*
+# old local snapshots / exported bundles
+1_database_and_config.txt
+2_backend_api_routes.txt
+3_frontend_components.txt
+4_ai_and_utils.txt
+bundle.py
+project_tree.txt
+project-tree-important.txt
+next.config.backup.*.ts
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ignore all heavy student book files anywhere
+data/**/*.pdf
+data/**/*.PDF
+data/**/*.zip
+data/**/*.tar
+data/**/*.tar.gz
+data/**/*.7z
+data/**/*.rar

@@ -1,405 +1,332 @@
-"use client";
+import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { planConfigs, formatToman } from "@/lib/billing/plans";
 
-import { FormEvent, KeyboardEvent, useMemo, useRef, useState } from "react";
-
-type Role = "user" | "assistant";
-
-type Message = {
-  id: string;
-  role: Role;
-  content: string;
-  createdAt: Date;
-};
-
-type AiModel = {
-  id: string;
-  name: string;
-  provider: string;
-  badge: string;
-  description: string;
-  creditCost: number;
-};
-
-const models: AiModel[] = [
+const features = [
   {
-    id: "openai/gpt-4o-mini",
-    name: "GPT-4o Mini",
-    provider: "OpenAI",
-    badge: "سریع",
-    description: "مناسب برای چت عمومی، تولید محتوا و پاسخ‌های سریع",
-    creditCost: 1,
+    title: "چت هوشمند برای کارهای مختلف",
+    description:
+      "از نوشتن و ایده‌پردازی تا تحلیل، ترجمه، برنامه‌ریزی، خلاصه‌سازی و حل مسئله را در یک فضای ساده انجام بده.",
   },
   {
-    id: "deepseek/deepseek-chat",
-    name: "DeepSeek Chat",
-    provider: "DeepSeek",
-    badge: "اقتصادی",
-    description: "مناسب برای برنامه‌نویسی، تحلیل متن و استفاده روزمره",
-    creditCost: 1,
+    title: "خلاصه‌سازی و تبدیل محتوا",
+    description:
+      "متن‌های طولانی، یادداشت‌ها و محتواها را به خلاصه، نکته‌های کلیدی، چک‌لیست یا خروجی قابل استفاده تبدیل کن.",
   },
   {
-    id: "google/gemini-flash-1.5",
-    name: "Gemini Flash",
-    provider: "Google",
-    badge: "چابک",
-    description: "مناسب برای پاسخ‌های سریع و کارهای سبک",
-    creditCost: 1,
+    title: "تولید تصویر و ایده بصری",
+    description:
+      "برای پست، پوستر، کاور، ارائه، تبلیغات یا ایده‌های شخصی، تصویر و کانسپت بصری بساز.",
   },
   {
-    id: "anthropic/claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnet",
-    provider: "Anthropic",
-    badge: "حرفه‌ای",
-    description: "مناسب برای تحلیل عمیق، نوشتن حرفه‌ای و کدنویسی",
-    creditCost: 3,
+    title: "فضای کاری یکپارچه",
+    description:
+      "چت‌ها، تصاویر، تاریخچه، تنظیمات و حساب کاربری را در یک پنل مرتب و حرفه‌ای مدیریت کن.",
   },
 ];
 
-const suggestions = [
-  "برای راستینو یک شعار کوتاه پیشنهاد بده",
-  "یک متن تبلیغاتی برای کاربران ایرانی بنویس",
-  "ایده‌های درآمدزایی این پلتفرم رو لیست کن",
-  "یک roadmap ساده برای MVP راستینو بده",
+const useCases = [
+  "نوشتن متن، کپشن و سناریو",
+  "برنامه‌ریزی و ایده‌پردازی",
+  "تحلیل و خلاصه‌سازی",
+  "کمک آموزشی و یادگیری",
+  "کدنویسی و دیباگ",
+  "ساخت تصویر و محتوای بصری",
 ];
 
-function createId() {
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
+const plans = Object.values(planConfigs).map((plan) => ({
+  name: plan.nameFa,
+  nameEn: plan.nameEn,
+  price: plan.priceToman === 0 ? "رایگان" : `${formatToman(plan.priceToman)} تومان / ماه`,
+  description: plan.description,
+  features: plan.features,
+  badge: plan.badge,
+  highlighted: plan.id === "plus",
+  stats: [
+    `${plan.monthlyCredits.toLocaleString("fa-IR")} اعتبار ماهانه`,
+    `${plan.dailyMessages.toLocaleString("fa-IR")} پیام روزانه`,
+    `${plan.monthlyImages.toLocaleString("fa-IR")} تصویر ماهانه`,
+  ],
+}));
 
-function createWelcomeMessage(): Message {
-  return {
-    id: createId(),
-    role: "assistant",
-    content:
-      "سلام! من راستینو هستم؛ دستیار هوش مصنوعی چندمدلی. فعلاً در حالت پروتوتایپ هستیم و پاسخ‌ها از API داخلی پروژه برمی‌گردند.",
-    createdAt: new Date(),
-  };
-}
-
-export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([createWelcomeMessage()]);
-  const [input, setInput] = useState("");
-  const [selectedModelId, setSelectedModelId] = useState(models[0].id);
-  const [isLoading, setIsLoading] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const selectedModel = useMemo(() => {
-    return models.find((model) => model.id === selectedModelId) || models[0];
-  }, [selectedModelId]);
-
-  const userMessageCount = messages.filter(
-    (message) => message.role === "user"
-  ).length;
-
-  function startNewChat() {
-    setMessages([createWelcomeMessage()]);
-    setInput("");
-    textareaRef.current?.focus();
-  }
-
-  async function sendMessage(text?: string) {
-    const content = (text ?? input).trim();
-
-    if (!content || isLoading) return;
-
-    const userMessage: Message = {
-      id: createId(),
-      role: "user",
-      content,
-      createdAt: new Date(),
-    };
-
-    const nextMessages = [...messages, userMessage];
-
-    setMessages(nextMessages);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: selectedModel.id,
-          messages: nextMessages.map((message) => ({
-            role: message.role,
-            content: message.content,
-          })),
-        }),
-      });
-
-      const data = await response.json();
-
-      const assistantMessage: Message = {
-        id: createId(),
-        role: "assistant",
-        content:
-          data.content ||
-          data.error ||
-          "متأسفم، پاسخ معتبری از سرور دریافت نشد.",
-        createdAt: new Date(),
-      };
-
-      setMessages([...nextMessages, assistantMessage]);
-    } catch {
-      const errorMessage: Message = {
-        id: createId(),
-        role: "assistant",
-        content:
-          "خطا در ارتباط با سرور داخلی راستینو. لطفاً مطمئن شو سرور Next.js روشن است.",
-        createdAt: new Date(),
-      };
-
-      setMessages([...nextMessages, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => textareaRef.current?.focus(), 0);
-    }
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    sendMessage();
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
-  }
-
+export default function LandingPage() {
   return (
-    <main dir="rtl" className="min-h-screen text-zinc-100">
-      <div className="flex min-h-screen">
-        <aside className="glass-panel m-4 hidden w-80 shrink-0 rounded-[2rem] p-5 lg:flex lg:flex-col">
-          <div className="mb-6">
-            <div className="flex items-center gap-3">
-              <div className="brand-gradient float-soft flex h-11 w-11 items-center justify-center rounded-2xl text-lg font-black text-white shadow-lg shadow-blue-600/20">
-                ر
-              </div>
+    <main dir="rtl" className="landing-shell min-h-screen text-zinc-100">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5">
+        <Link href="/" className="flex items-center gap-3">
+          <BrandLogo size="sm" />
+          <div>
+            <p className="text-lg font-black">راستینو</p>
+            <p className="text-xs r-muted">دستیار هوشمند فارسی برای کارهای واقعی</p>
+          </div>
+        </Link>
 
-              <div>
-                <h1 className="text-xl font-black tracking-tight">راستینو</h1>
-                <p className="text-xs text-zinc-400">
-                  دسترسی یکپارچه به مدل‌های هوش مصنوعی
-                </p>
-              </div>
-            </div>
+        <nav className="hidden items-center gap-6 text-sm text-zinc-400 md:flex">
+          <a href="#features" className="hover:text-white">
+            امکانات
+          </a>
+          <a href="#plans" className="hover:text-white">
+            پلن‌ها
+          </a>
+          <a href="#use-cases" className="hover:text-white">
+            کاربردها
+          </a>
+        </nav>
+
+        <Link href="/app" className="landing-login-button">
+          ورود به اپلیکیشن
+        </Link>
+      </header>
+
+      <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-20 pt-12 lg:grid-cols-[1.1fr_.9fr] lg:pt-20">
+        <div>
+          <div className="landing-badge">هوش مصنوعی فارسی، ساده و کاربردی</div>
+
+          <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.35] md:text-6xl">
+            راستینو کمک می‌کند سریع‌تر بنویسی، بهتر فکر کنی، دقیق‌تر تحلیل کنی و خروجی آماده‌تری بسازی.
+          </h1>
+
+          <p className="mt-6 max-w-2xl text-base leading-9 text-zinc-400 md:text-lg">
+            راستینو فقط یک چت‌بات نیست؛ یک فضای هوشمند برای نوشتن، تحلیل،
+            خلاصه‌سازی، ایده‌پردازی، کدنویسی، تولید تصویر و انجام سریع‌تر کارهاست.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href="/app" className="landing-primary-button">
+              شروع رایگان
+            </Link>
+
+            <a href="#features" className="landing-secondary-button">
+              مشاهده امکانات
+            </a>
           </div>
 
-          <button
-            onClick={startNewChat}
-            className="glow-button brand-gradient mb-5 rounded-2xl px-4 py-3 text-sm font-bold text-white transition hover:scale-[1.01]"
-          >
-            + چت جدید
-          </button>
+          <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
+            <div className="landing-mini-stat">
+              <b>چت</b>
+              <span>برای سؤال‌ها و کارهای روزمره</span>
+            </div>
+            <div className="landing-mini-stat">
+              <b>تصویر</b>
+              <span>برای ایده‌های بصری</span>
+            </div>
+            <div className="landing-mini-stat">
+              <b>ابزار</b>
+              <span>برای خروجی سریع‌تر</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="landing-preview-card">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs r-muted">اپلیکیشن راستینو</p>
+              <h2 className="text-xl font-black">فضای کاری هوشمند با AI</h2>
+            </div>
+            <BrandLogo size="sm" />
+          </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-bold text-zinc-400">انتخاب مدل</p>
-
-            {models.map((model) => {
-              const isActive = model.id === selectedModelId;
-
-              return (
-                <button
-                  key={model.id}
-                  onClick={() => setSelectedModelId(model.id)}
-                  className={`w-full rounded-2xl p-4 text-right transition ${
-                    isActive
-                      ? "glass-card border-blue-400/70 bg-blue-500/15 shadow-blue-500/10"
-                      : "glass-card border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
-                  }`}
-                >
-                  <div className="relative z-10 mb-2 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-bold">{model.name}</p>
-                      <p className="text-xs text-zinc-500">{model.provider}</p>
-                    </div>
-
-                    <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] text-zinc-300">
-                      {model.badge}
-                    </span>
-                  </div>
-
-                  <p className="relative z-10 text-xs leading-6 text-zinc-400">
-                    {model.description}
-                  </p>
-
-                  <p className="relative z-10 mt-3 text-xs text-zinc-500">
-                    هزینه آزمایشی: {model.creditCost} اعتبار
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="glass-card mt-auto rounded-2xl p-4">
-            <p className="relative z-10 text-sm font-bold">وضعیت پروتوتایپ</p>
-            <div className="relative z-10 mt-3 space-y-2 text-xs text-zinc-400">
-              <div className="flex justify-between">
-                <span>اتصال Frontend</span>
-                <span className="text-emerald-400">فعال</span>
-              </div>
-              <div className="flex justify-between">
-                <span>API داخلی</span>
-                <span className="text-emerald-400">فعال</span>
-              </div>
-              <div className="flex justify-between">
-                <span>OpenRouter</span>
-                <span className="text-amber-400">بعداً</span>
-              </div>
+            <div className="landing-message landing-message-user">
+              برای این ایده یک متن معرفی کوتاه، جذاب و حرفه‌ای بنویس.
             </div>
-          </div>
-        </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col">
-          <header className="px-4 py-4 md:px-8">
-            <div className="glass-panel mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-[2rem] px-5 py-4">
-              <div>
-                <p className="text-xs text-zinc-500">پروتوتایپ راستینو</p>
-                <h2 className="text-gradient text-lg font-black md:text-2xl">
-                  چت هوشمند چندمدلی
-                </h2>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="hidden rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 sm:block">
-                  {selectedModel.name}
-                </div>
-
-                <button
-                  onClick={startNewChat}
-                  className="glow-button brand-gradient rounded-2xl px-4 py-2 text-sm font-bold text-white transition hover:scale-[1.02] lg:hidden"
-                >
-                  چت جدید
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
-            <div className="mx-auto max-w-5xl space-y-5">
-              {messages.map((message) => {
-                const isUser = message.role === "user";
-
-                return (
-                  <div
-                    key={message.id}
-                    className={`flex ${isUser ? "justify-start" : "justify-end"}`}
-                  >
-                    <div
-                      className={`message-enter max-w-[88%] rounded-3xl px-5 py-4 leading-8 shadow-sm md:max-w-[75%] ${
-                        isUser
-                          ? "brand-gradient text-white shadow-lg shadow-blue-600/20"
-                          : "glass-card text-zinc-100"
-                      }`}
-                    >
-                      <div className="relative z-10 mb-2 flex items-center gap-2 text-xs opacity-70">
-                        <span>{isUser ? "شما" : "راستینو"}</span>
-                        <span>•</span>
-                        <span>
-                          {message.createdAt.toLocaleTimeString("fa-IR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-
-                      <p className="relative z-10 whitespace-pre-wrap text-sm md:text-base">
-                        {message.content}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {isLoading && (
-                <div className="flex justify-end">
-                  <div className="glass-card message-enter max-w-[75%] rounded-3xl px-5 py-4">
-                    <div className="relative z-10 mb-2 text-xs text-zinc-500">
-                      راستینو
-                    </div>
-                    <div className="relative z-10 flex items-center gap-2 text-sm text-zinc-400">
-                      <span className="pulse-dot h-2 w-2 rounded-full bg-zinc-400" />
-                      <span className="pulse-dot h-2 w-2 rounded-full bg-zinc-400" />
-                      <span className="pulse-dot h-2 w-2 rounded-full bg-zinc-400" />
-                      <span className="mr-2">در حال پردازش...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {userMessageCount === 0 && (
-                <div className="grid gap-3 pt-4 md:grid-cols-2">
-                  {suggestions.map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      onClick={() => sendMessage(suggestion)}
-                      className="glass-card rounded-2xl p-4 text-right text-sm leading-7 text-zinc-300 transition hover:border-blue-500/50 hover:bg-blue-500/10"
-                    >
-                      <span className="relative z-10">{suggestion}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="px-4 py-4 md:px-8">
-            <form onSubmit={handleSubmit} className="mx-auto max-w-5xl">
-              <div className="glass-panel rounded-3xl p-3 shadow-2xl shadow-black/20">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-                  <div className="text-xs text-zinc-400">
-                    مدل فعلی:{" "}
-                    <span className="font-bold text-zinc-200">
-                      {selectedModel.name}
-                    </span>
-                  </div>
-
-                  <select
-                    value={selectedModelId}
-                    onChange={(event) => setSelectedModelId(event.target.value)}
-                    className="rounded-xl border border-white/10 bg-[#11131d] px-3 py-2 text-xs text-zinc-200 outline-none"
-                  >
-                    {models.map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-end gap-3">
-                  <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="پیامت رو برای راستینو بنویس..."
-                    rows={1}
-                    className="max-h-40 min-h-12 flex-1 resize-none bg-transparent px-2 py-3 text-sm leading-7 text-zinc-100 outline-none placeholder:text-zinc-600 md:text-base"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading}
-                    className="glow-button brand-gradient rounded-2xl px-5 py-3 text-sm font-black text-white transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    ارسال
-                  </button>
-                </div>
-              </div>
-
-              <p className="mt-3 text-center text-xs leading-6 text-zinc-600">
-                نسخه آزمایشی راستینو؛ فعلاً پاسخ‌ها از API داخلی برمی‌گردند و اتصال مدل‌های واقعی در مرحله بعد اضافه می‌شود.
+            <div className="landing-message landing-message-ai">
+              <p className="font-black">پاسخ راستینو</p>
+              <p className="mt-2 text-sm leading-7 text-zinc-300">
+                اول مخاطب و هدف را مشخص می‌کنیم، بعد متن را کوتاه، شفاف و
+                قابل استفاده برای سایت یا شبکه‌های اجتماعی آماده می‌کنیم.
               </p>
-            </form>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="landing-tool-card">خلاصه‌سازی</div>
+              <div className="landing-tool-card">ایده‌پردازی</div>
+              <div className="landing-tool-card">کدنویسی</div>
+              <div className="landing-tool-card">تولید تصویر</div>
+            </div>
           </div>
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+
+      <section id="features" className="mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-8">
+          <p className="text-xs font-black text-zinc-500">امکانات</p>
+          <h2 className="mt-2 text-3xl font-black">با راستینو چه کارهایی می‌تونی انجام بدی؟</h2>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {features.map((feature) => (
+            <article key={feature.title} className="landing-card">
+              <h3 className="text-lg font-black">{feature.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-zinc-400">
+                {feature.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="use-cases" className="mx-auto max-w-7xl px-5 py-16">
+        <div className="landing-wide-card">
+          <div>
+            <p className="text-xs font-black text-zinc-500">کاربردها</p>
+            <h2 className="mt-2 text-3xl font-black">
+              برای کار، یادگیری، محتوا و زندگی روزمره
+            </h2>
+            <p className="mt-4 max-w-3xl text-sm leading-8 text-zinc-400">
+              راستینو برای یک گروه خاص محدود نیست. هر کسی که می‌خواهد سریع‌تر
+              فکر کند، بهتر بنویسد، بهتر تحلیل کند یا خروجی آماده‌تری بسازد،
+              می‌تواند از راستینو استفاده کند.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {useCases.map((item) => (
+              <div key={item} className="landing-tool-card">
+                {item}
+              </div>
+            ))}
+          </div>
+
+          <Link href="/app" className="landing-primary-button mt-8 inline-flex">
+            شروع کن
+          </Link>
+        </div>
+      </section>
+
+      <section id="plans" className="mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-8">
+          <p className="text-xs font-black text-zinc-500">پلن‌ها</p>
+          <h2 className="mt-2 text-3xl font-black">پلن‌های ساده، شفاف و قابل انتخاب</h2>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {plans.map((plan) => (
+            <article
+              key={plan.name}
+              className={`landing-plan-card ${
+                plan.highlighted ? "landing-plan-card-active" : ""
+              }`}
+            >
+              <div className="mb-5 flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl font-black">{plan.name}</h3>
+                  <p className="mt-1 text-xs font-black text-zinc-500" dir="ltr">
+                    {plan.nameEn}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-zinc-400">
+                    {plan.description}
+                  </p>
+                </div>
+
+                <span className="landing-plan-badge">
+                  {plan.badge}
+                </span>
+              </div>
+
+              <p className="mb-2 text-2xl font-black">{plan.price}</p>
+              <p className="mb-5 text-xs text-zinc-500">
+                قیمت ویژه شروع فعالیت راستینو
+              </p>
+
+              <div className="mb-5 grid gap-2">
+                {plan.stats.map((stat) => (
+                  <div
+                    key={stat}
+                    className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-black text-zinc-200"
+                  >
+                    {stat}
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                {plan.features.map((feature) => (
+                  <p key={feature} className="text-sm text-zinc-300">
+                    ✓ {feature}
+                  </p>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-20">
+        <div className="landing-final-cta">
+          <BrandLogo size="lg" />
+          <h2 className="mt-6 text-3xl font-black md:text-4xl">
+            آماده‌ای راستینو رو امتحان کنی؟
+          </h2>
+          <p className="mt-4 max-w-xl text-center text-sm leading-8 text-zinc-400">
+            وارد اپلیکیشن شو، اولین پیام رو بفرست و ببین چطور می‌تونی سریع‌تر
+            بنویسی، فکر کنی، تحلیل کنی و خروجی بسازی.
+          </p>
+          <Link href="/app" className="landing-primary-button mt-8">
+            ورود به راستینو
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t border-[#202020] px-5 py-6">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 text-sm text-zinc-500 md:flex-row">
+          <p>© راستینو</p>
+          <p>هوش مصنوعی ساده و کاربردی برای همه</p>
+        </div>
+      </footer>
+    
+      <section className="relative mx-auto w-full max-w-7xl px-6 py-20" id="why-rastino">
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl md:p-10">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.35em] text-zinc-500">
+              چرا راستینو؟
+            </p>
+
+            <h2 className="mt-4 text-3xl font-black leading-[1.4] tracking-tight text-white md:text-5xl">
+              یک فضای ساده برای کار جدی با هوش مصنوعی
+            </h2>
+
+            <p className="mt-5 text-base leading-8 text-zinc-400">
+              راستینو کمک می‌کند از هوش مصنوعی فقط برای چت کردن استفاده نکنی؛
+              بلکه سریع‌تر فکر کنی، بهتر بنویسی، دقیق‌تر تحلیل کنی و خروجی آماده‌تری بسازی.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-lg font-black text-black">
+                ۱
+              </div>
+              <h3 className="text-lg font-black text-white">سریع‌تر فکر کن</h3>
+              <p className="mt-3 text-sm leading-7 text-zinc-400">
+                سؤال، ایده یا مسئله‌ات را وارد کن و سریع به مسیر درست، پیشنهاد عملی و پاسخ قابل استفاده برس.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-lg font-black text-black">
+                ۲
+              </div>
+              <h3 className="text-lg font-black text-white">بهتر بنویس</h3>
+              <p className="mt-3 text-sm leading-7 text-zinc-400">
+                متن معرفی، کپشن، ایمیل، سناریو، خلاصه یا محتوای سایت را با لحن حرفه‌ای‌تر آماده کن.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-black/30 p-6">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-lg font-black text-black">
+                ۳
+              </div>
+              <h3 className="text-lg font-black text-white">خروجی آماده بساز</h3>
+              <p className="mt-3 text-sm leading-7 text-zinc-400">
+                از تحلیل و برنامه‌ریزی تا کدنویسی و تولید تصویر، همه چیز را در یک محیط منظم جلو ببر.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+</main>
   );
 }
