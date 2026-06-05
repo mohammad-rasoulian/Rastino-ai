@@ -49,7 +49,20 @@ const plans = Object.values(planConfigs).map((plan) => ({
   ],
 }));
 
-export default function LandingPage() {
+
+
+function EnamadTrustBadge() {
+  const exactEnamadHtml = `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=737558&Code=Fn6EDap5F7RhTzgahabRFO7kymRFCWK5'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=737558&Code=Fn6EDap5F7RhTzgahabRFO7kymRFCWK5' alt='' style='cursor:pointer' code='Fn6EDap5F7RhTzgahabRFO7kymRFCWK5'></a>`;
+
+  return (
+    <div className="flex min-h-28 items-center justify-center rounded-3xl border border-white/10 bg-white p-4 shadow-[0_20px_70px_rgba(0,0,0,0.35)] [&_a]:block [&_img]:mx-auto [&_img]:max-h-28 [&_img]:w-auto">
+      <div dangerouslySetInnerHTML={{ __html: exactEnamadHtml }} />
+    </div>
+  );
+}
+
+export default function
+ LandingPage() {
   return (
     <main dir="rtl" className="landing-shell min-h-screen text-zinc-100">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5">
@@ -269,10 +282,60 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-[#202020] px-5 py-6">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 text-sm text-zinc-500 md:flex-row">
-          <p>© راستینو</p>
-          <p>هوش مصنوعی ساده و کاربردی برای همه</p>
+      <footer className="border-t border-[#202020] bg-[#050505] px-5 py-10">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.15fr_0.85fr_0.9fr] md:items-start">
+          <div>
+            <div className="flex items-center gap-3">
+              <BrandLogo size="md" />
+              <div>
+                <p className="text-lg font-black">راستینو</p>
+                <p className="mt-1 text-xs text-zinc-500">Rastino AI Platform</p>
+              </div>
+            </div>
+
+            <p className="mt-5 max-w-xl text-sm leading-8 text-zinc-400">
+              راستینو یک فضای هوشمند فارسی برای چت، تولید محتوا، ایده‌پردازی،
+              کدنویسی، تحلیل و تولید تصویر است؛ ساخته شده برای استفاده واقعی،
+              روزمره و حرفه‌ای.
+            </p>
+
+            <p className="mt-5 text-xs text-zinc-600">
+              © {new Date().getFullYear()} Rastino. All rights reserved.
+            </p>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-sm font-black text-white">اعتماد به ما</p>
+            <p className="mt-3 text-xs leading-6 text-zinc-500">
+              راستینو با هدف ارائه تجربه‌ای امن، شفاف و قابل اعتماد برای کاربران
+              فارسی‌زبان توسعه داده شده است.
+            </p>
+
+            <div className="mt-5 grid gap-2 text-xs text-zinc-300">
+              <span className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">
+                ✓ نماد اعتماد الکترونیکی
+              </span>
+              <span className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">
+                ✓ دسترسی امن و رمزنگاری‌شده
+              </span>
+              <span className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2">
+                ✓ پشتیبانی و پیگیری کاربران
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-white">نماد اعتماد</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  برای مشاهده جزئیات روی نماد کلیک کنید.
+                </p>
+              </div>
+            </div>
+
+            <EnamadTrustBadge />
+          </div>
         </div>
       </footer>
     

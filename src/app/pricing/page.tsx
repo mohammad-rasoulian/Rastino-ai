@@ -1,39 +1,31 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PlanPurchaseButton } from "@/components/pricing/PlanPurchaseButton";
+import { formatToman, planConfigs } from "@/lib/billing/plans";
 
-export const metadata: Metadata = {
-  title: "تعرفه‌ها و پلن‌های راستینو",
+export const metadata = {
+  title: "تعرفه‌ها و پلن‌های راستینو | راستینو",
   description:
-    "مشاهده پلن‌های رایگان، پلاس و پرو راستینو برای استفاده از دستیار هوشمند فارسی.",
+    "پلن‌های راستینو برای استفاده رایگان، روزمره و حرفه‌ای با پرداخت امن آنلاین.",
 };
 
-const plans = [
-  {
-    name: "Free",
-    price: "رایگان",
-    description: "برای آشنایی اولیه با راستینو",
-    features: ["شروع سریع", "چت پایه", "تعداد پیام محدود", "مناسب تست اولیه"],
-  },
-  {
-    name: "Plus",
-    price: "به‌زودی",
-    description: "برای استفاده روزمره و منظم",
-    features: ["پیام بیشتر", "مدل‌های بهتر", "تاریخچه چت", "ابزارهای کاربردی"],
-    highlighted: true,
-  },
-  {
-    name: "Pro",
-    price: "به‌زودی",
-    description: "برای کاربران حرفه‌ای و استفاده سنگین‌تر",
-    features: ["اولویت پردازش", "ظرفیت بیشتر", "ابزارهای پیشرفته", "امکانات تکمیلی"],
-  },
-];
+const plans = Object.values(planConfigs);
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    payment?: string;
+    plan?: string;
+    reason?: string;
+  }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const paymentStatus = resolvedSearchParams?.payment;
+
   return (
     <main dir="rtl" className="landing-shell min-h-screen text-zinc-100">
-      <section className="mx-auto max-w-6xl px-5 py-10">
+      <section className="mx-auto max-w-7xl px-5 py-10">
         <Link href="/" className="inline-flex items-center gap-3">
           <BrandLogo size="sm" />
           <span className="text-lg font-black">راستینو</span>
@@ -42,47 +34,101 @@ export default function PricingPage() {
         <div className="mt-10">
           <p className="text-xs font-black text-zinc-500">Pricing</p>
           <h1 className="mt-3 text-4xl font-black leading-[1.35]">
-            تعرفه‌ها و پلن‌ها
+            پلن‌های راستینو
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-8 text-zinc-400">
-            پلن‌های راستینو برای شروع رایگان، استفاده روزمره و استفاده حرفه‌ای
-            طراحی می‌شوند. قیمت‌های نهایی پس از اتصال درگاه پرداخت و آماده‌سازی
-            نسخه عمومی اعلام می‌شوند.
+            از استفاده رایگان شروع کن؛ هر وقت به سقف بالاتر، مدل‌های بهتر،
+            تصویر بیشتر و امکانات حرفه‌ای‌تر نیاز داشتی، پلن مناسب خودت را
+            فعال کن.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-3">
-          {plans.map((plan) => (
-            <article
-              key={plan.name}
-              className={`landing-plan-card ${
-                plan.highlighted ? "landing-plan-card-active" : ""
-              }`}
-            >
-              <h2 className="text-2xl font-black">{plan.name}</h2>
-              <p className="mt-3 text-sm leading-7 text-zinc-400">
-                {plan.description}
-              </p>
+        {paymentStatus === "success" && (
+          <div className="mt-8 rounded-[2rem] border border-emerald-400/20 bg-emerald-500/10 p-5 text-sm leading-7 text-emerald-100">
+            پرداخت با موفقیت تأیید شد و پلن حساب شما فعال شد.
+          </div>
+        )}
 
-              <p className="mt-6 text-2xl font-black">{plan.price}</p>
+        {paymentStatus === "failed" && (
+          <div className="mt-8 rounded-[2rem] border border-red-400/20 bg-red-500/10 p-5 text-sm leading-7 text-red-100">
+            پرداخت ناموفق بود یا توسط کاربر لغو شد. در صورت کسر وجه، وضعیت
+            تراکنش توسط درگاه بررسی و طبق روال بانکی تعیین می‌شود.
+          </div>
+        )}
 
-              <div className="mt-6 space-y-3">
-                {plan.features.map((feature) => (
-                  <p key={feature} className="text-sm text-zinc-300">
-                    ✓ {feature}
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {plans.map((plan) => {
+            const highlighted = plan.id === "plus";
+
+            return (
+              <article
+                key={plan.id}
+                className={`landing-plan-card ${
+                  highlighted ? "landing-plan-card-active" : ""
+                }`}
+              >
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-black">{plan.nameFa}</h2>
+                    <p
+                      className="mt-1 text-xs font-black text-zinc-500"
+                      dir="ltr"
+                    >
+                      {plan.nameEn}
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-zinc-400">
+                      {plan.description}
+                    </p>
+                  </div>
+
+                  <span className="landing-plan-badge">{plan.badge}</span>
+                </div>
+
+                <p className="mb-2 text-2xl font-black">
+                  {formatToman(plan.priceToman)}
+                </p>
+
+                {plan.priceToman > 0 && (
+                  <p className="mb-5 text-xs text-zinc-500">
+                    پرداخت امن آنلاین از طریق زیبال
                   </p>
-                ))}
-              </div>
-            </article>
-          ))}
+                )}
+
+                <div className="mb-5 grid gap-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-black text-zinc-200">
+                    {plan.monthlyCredits.toLocaleString("fa-IR")} اعتبار ماهانه
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-black text-zinc-200">
+                    {plan.dailyMessages.toLocaleString("fa-IR")} پیام روزانه
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-black text-zinc-200">
+                    {plan.monthlyImages.toLocaleString("fa-IR")} تصویر ماهانه
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {plan.features.map((feature) => (
+                    <p key={feature} className="text-sm text-zinc-300">
+                      ✓ {feature}
+                    </p>
+                  ))}
+                </div>
+
+                <PlanPurchaseButton
+                  planId={plan.id}
+                  priceToman={plan.priceToman}
+                />
+              </article>
+            );
+          })}
         </div>
 
-        <div className="mt-10 rounded-3xl border border-[#242424] bg-[#101010] p-6">
-          <h2 className="text-lg font-black">شفافیت تعرفه‌ها</h2>
-          <p className="mt-3 text-sm leading-8 text-zinc-400">
-            هزینه استفاده از مدل‌های هوش مصنوعی به نوع مدل، تعداد پیام، حجم
-            ورودی و خروجی و امکانات فعال بستگی دارد. قبل از تجاری‌سازی نهایی،
-            ساختار اعتبار، کیف پول و محدودیت مصرف به‌صورت شفاف نمایش داده می‌شود.
+        <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-5">
+          <p className="text-sm font-black">پرداخت امن</p>
+          <p className="mt-3 text-xs leading-7 text-zinc-500">
+            پرداخت پلن‌های راستینو از طریق درگاه زیبال انجام می‌شود. پس از
+            بازگشت از درگاه، پرداخت در سرور راستینو تأیید می‌شود و سپس پلن حساب
+            فعال خواهد شد.
           </p>
         </div>
       </section>
