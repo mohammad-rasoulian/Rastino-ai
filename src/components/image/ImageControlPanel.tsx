@@ -441,7 +441,7 @@ export function ImageControlPanel({
         </button>
 
         <p className="mt-3 text-center text-[11px] leading-6 r-muted">
-          Studio Pro آماده اتصال به API واقعی تصویر است.
+          مدل‌های تصویر راستینو از AvalAI اجرا می‌شوند.
         </p>
       </div>
     </aside>

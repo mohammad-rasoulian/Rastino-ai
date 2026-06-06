@@ -29,6 +29,7 @@ export const accountPlans = Object.values(planConfigs).map((plan) => ({
   name: plan.nameFa,
   nameEn: plan.nameEn,
   badge: plan.badge,
+  priceToman: plan.priceToman,
   price:
     plan.priceToman === 0
       ? "رایگان"

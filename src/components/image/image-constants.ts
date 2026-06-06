@@ -1,14 +1,11 @@
 import type { AspectRatio, ImageModelId, ImageQuality } from "./types";
 
 export const IMAGE_MODEL_IDS: ImageModelId[] = [
-  "gapgpt/z-image",
-  "imagen-4.0-fast-generate-001",
-  "gemini-2.5-flash-image",
-  "dall-e-3",
+  "z-image-turbo",
   "imagen-4.0-ultra-generate-001",
-  "gemini-3.1-flash-image-preview",
-  "gpt-image-1-mini",
-  "gpt-image-2",
+  "gemini-2.5-flash-image",
+  "gemini-3.1-flash-image",
+  "gpt-5.2",
 ];
 
 export const ASPECT_RATIO_IDS: AspectRatio[] = [

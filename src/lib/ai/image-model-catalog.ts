@@ -1,157 +1,131 @@
-export type RastinoImagePlanTier = "free" | "plus" | "pro" | "ultra";
+export type RastinoImagePlanTier = "free" | "plus" | "pro";
+export type RastinoImageProvider = "avalai";
+export type RastinoImageEndpoint = "images" | "chat";
 
-export type RastinoImageProvider = "gapgpt" | "openai" | "google";
+export type RastinoImageModel = {
+  id: string;
+  label: string;
+  titleFa: string;
+  descriptionFa: string;
+  provider: RastinoImageProvider;
+  avalaiProvider: "alibaba" | "google" | "openai";
+  endpoint: RastinoImageEndpoint;
+  tier: RastinoImagePlanTier;
+  creditCost: number;
+  priceHint: string;
+  recommended: boolean;
+};
 
-export const rastinoImageModels = [
+export const rastinoImageModels: RastinoImageModel[] = [
   {
-    id: "gapgpt/z-image",
-    label: "Z Image",
-    titleFa: "تصویر اقتصادی",
-    descriptionFa: "ساده و ارزان",
-    provider: "gapgpt",
+    id: "z-image-turbo",
+    label: "Rastino Fast",
+    titleFa: "تصویر سریع پایه",
+    descriptionFa: "رایگان، سریع و مناسب تست ایده",
+    provider: "avalai",
+    avalaiProvider: "alibaba",
+    endpoint: "images",
     tier: "free",
-    creditCost: 2,
-    priceHint: "$0.0050",
+    creditCost: 1,
+    priceHint: "0.015 credit/image",
     recommended: true,
   },
-
   {
-    id: "imagen-4.0-fast-generate-001",
-    label: "Imagen 4 Fast",
-    titleFa: "تصویر سریع",
-    descriptionFa: "سریع و تمیز",
-    provider: "google",
+    id: "imagen-4.0-ultra-generate-001",
+    label: "Imagen Ultra",
+    titleFa: "تصویر Ultra",
+    descriptionFa: "کیفیت بالا برای خروجی حرفه‌ای",
+    provider: "avalai",
+    avalaiProvider: "google",
+    endpoint: "images",
     tier: "plus",
-    creditCost: 6,
-    priceHint: "$0.020",
+    creditCost: 4,
+    priceHint: "0.06 credit/image",
     recommended: true,
   },
   {
     id: "gemini-2.5-flash-image",
-    label: "Gemini 2.5 Flash Image",
-    titleFa: "تصویر هوشمند",
-    descriptionFa: "متعادل و کاربردی",
-    provider: "google",
+    label: "Gemini Flash Image",
+    titleFa: "تصویر هوشمند چندوجهی",
+    descriptionFa: "پلاس، سریع و مناسب سناریوهای تصویری پیچیده‌تر",
+    provider: "avalai",
+    avalaiProvider: "google",
+    endpoint: "chat",
     tier: "plus",
-    creditCost: 20,
-    priceHint: "$0.040",
-    recommended: false,
-  },
-  {
-    id: "dall-e-3",
-    label: "DALL·E 3",
-    titleFa: "تصویر کلاسیک",
-    descriptionFa: "خلاق و شناخته‌شده",
-    provider: "openai",
-    tier: "plus",
-    creditCost: 12,
-    priceHint: "$0.040",
-    recommended: false,
-  },
-
-  {
-    id: "imagen-4.0-ultra-generate-001",
-    label: "Imagen 4 Ultra",
-    titleFa: "تصویر دقیق",
-    descriptionFa: "کیفیت بالاتر",
-    provider: "google",
-    tier: "pro",
-    creditCost: 16,
-    priceHint: "$0.060",
-    recommended: false,
-  },
-  {
-    id: "gemini-3.1-flash-image-preview",
-    label: "Gemini 3.1 Flash Image",
-    titleFa: "تصویر حرفه‌ای",
-    descriptionFa: "سریع و پیشرفته",
-    provider: "google",
-    tier: "pro",
-    creditCost: 20,
-    priceHint: "$0.080",
+    creditCost: 3,
+    priceHint: "0.04 credit/image",
     recommended: true,
   },
   {
-    id: "gpt-image-1-mini",
-    label: "GPT Image 1 Mini",
-    titleFa: "تصویر جی‌پی‌تی",
-    descriptionFa: "خوب و کنترل‌شده",
-    provider: "openai",
+    id: "gemini-3.1-flash-image",
+    label: "Gemini Advanced Image",
+    titleFa: "تصویر پیشرفته Gemini",
+    descriptionFa: "پرو، کیفیت و فهم بهتر برای پرامپت‌های جدی",
+    provider: "avalai",
+    avalaiProvider: "google",
+    endpoint: "chat",
     tier: "pro",
-    creditCost: 60,
-    priceHint: "$2 / $4",
-    recommended: false,
+    creditCost: 6,
+    priceHint: "0.0672 credit/image",
+    recommended: true,
   },
   {
-    id: "gpt-image-2",
-    label: "GPT Image 2",
-    titleFa: "بهترین تصویر",
-    descriptionFa: "کیفیت بسیار بالا",
-    provider: "openai",
+    id: "gpt-5.2",
+    label: "GPT Studio",
+    titleFa: "تصویر حرفه‌ای GPT",
+    descriptionFa: "پرو، بالاترین دستورپذیری و خروجی خاص",
+    provider: "avalai",
+    avalaiProvider: "openai",
+    endpoint: "chat",
     tier: "pro",
-    creditCost: 180,
-    priceHint: "$8 / $30",
+    creditCost: 8,
+    priceHint: "token based",
     recommended: false,
   },
-
-  {
-    id: "gemini-3-pro-image-preview",
-    label: "Gemini 3 Pro Image",
-    titleFa: "تصویر ویژه",
-    descriptionFa: "گران و خاص",
-    provider: "google",
-    tier: "ultra",
-    creditCost: 120,
-    priceHint: "$2 / $120",
-    recommended: false,
-  },
-] as const;
-
-export type RastinoImageModelId = (typeof rastinoImageModels)[number]["id"];
+];
 
 export function getRastinoImageModel(modelId?: string | null) {
   return rastinoImageModels.find((model) => model.id === modelId) || null;
 }
 
-export function getImageModelsForPlan(plan?: string | null) {
-  const normalizedPlan =
-    plan === "pro" ? "pro" : plan === "plus" ? "plus" : "free";
-
-  const allowedTiers =
-    normalizedPlan === "pro"
-      ? ["free", "plus", "pro"]
-      : normalizedPlan === "plus"
-        ? ["free", "plus"]
-        : ["free"];
-
-  return rastinoImageModels.filter((model) => allowedTiers.includes(model.tier));
+function normalizePlan(plan?: string | null): RastinoImagePlanTier {
+  if (plan === "pro") return "pro";
+  if (plan === "plus") return "plus";
+  return "free";
 }
 
-export function getDefaultImageModelForPlan(plan?: string | null): RastinoImageModelId {
-  if (plan === "pro") return "gemini-3.1-flash-image-preview";
-  if (plan === "plus") return "imagen-4.0-fast-generate-001";
+function allowedTiers(plan?: string | null): RastinoImagePlanTier[] {
+  const normalized = normalizePlan(plan);
 
-  return "gapgpt/z-image";
+  if (normalized === "pro") return ["free", "plus", "pro"];
+  if (normalized === "plus") return ["free", "plus"];
+  return ["free"];
+}
+
+export function getImageModelsForPlan(plan?: string | null) {
+  const tiers = allowedTiers(plan);
+  return rastinoImageModels.filter((model) => tiers.includes(model.tier));
 }
 
 export function canUseImageModel(plan: string | null | undefined, modelId: string) {
   const model = getRastinoImageModel(modelId);
   if (!model) return false;
 
-  const normalizedPlan =
-    plan === "pro" ? "pro" : plan === "plus" ? "plus" : "free";
-
-  if (normalizedPlan === "pro") {
-    return model.tier === "free" || model.tier === "plus" || model.tier === "pro";
-  }
-
-  if (normalizedPlan === "plus") {
-    return model.tier === "free" || model.tier === "plus";
-  }
-
-  return model.tier === "free";
+  return allowedTiers(plan).includes(model.tier);
 }
 
 export function canAdminUseImageModel(modelId: string) {
   return Boolean(getRastinoImageModel(modelId));
+}
+
+export function getDefaultImageModelForPlan(plan?: string | null) {
+  const normalized = normalizePlan(plan);
+
+  if (normalized === "pro") return "gemini-3.1-flash-image";
+  if (normalized === "plus") return "imagen-4.0-ultra-generate-001";
+  return "z-image-turbo";
+}
+
+export function getImageModelCreditCost(modelId: string) {
+  return getRastinoImageModel(modelId)?.creditCost || 1;
 }

@@ -1,15 +1,17 @@
 import { prisma } from "@/lib/prisma";
+import { storeGeneratedImageLocally } from "@/lib/images/store-generated-image";
 import {
   getRequestUser,
   isUnauthorizedError,
   unauthorizedResponse,
 } from "@/lib/auth/request-user";
 import { getPlanConfig } from "@/lib/billing/plans";
-import { generateGapGptImage } from "@/lib/ai/gapgpt-image";
+import { generateAvalaiImage } from "@/lib/ai/avalai-image";
 import {
   canAdminUseImageModel,
   canUseImageModel,
   getDefaultImageModelForPlan,
+  getImageModelCreditCost,
   getRastinoImageModel,
 } from "@/lib/ai/image-model-catalog";
 
@@ -17,8 +19,27 @@ function getMonthStart() {
   const start = new Date();
   start.setDate(1);
   start.setHours(0, 0, 0, 0);
-
   return start;
+}
+
+function getDayStart() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function normalizeAspectRatio(aspectRatio: string) {
+  if (aspectRatio === "16:9") return "1792x1024";
+  if (aspectRatio === "9:16") return "1024x1792";
+  if (aspectRatio === "4:3") return "1024x768";
+  if (aspectRatio === "3:4") return "768x1024";
+  return "1024x1024";
+}
+
+function normalizeImageCount(value: unknown) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue)) return 1;
+  return Math.min(Math.max(Math.floor(numberValue), 1), 3);
 }
 
 async function getMonthlyImageCount(userId: string) {
@@ -34,63 +55,30 @@ async function getMonthlyImageCount(userId: string) {
   });
 }
 
-async function getMonthlyCreditUsage(userId: string) {
-  const result = await prisma.usageLog.aggregate({
+async function getDailyImageCount(userId: string) {
+  return prisma.usageLog.count({
     where: {
       userId,
+      scope: "image",
+      action: "generate",
       createdAt: {
-        gte: getMonthStart(),
+        gte: getDayStart(),
       },
     },
-    _sum: {
-      creditCost: true,
-    },
   });
-
-  return result._sum.creditCost || 0;
-}
-
-function normalizeAspectRatio(value: string) {
-  if (value === "1:1") return "1024x1024";
-  if (value === "16:9") return "1792x1024";
-  if (value === "9:16") return "1024x1792";
-  if (value === "4:3") return "1536x1024";
-  if (value === "3:4") return "1024x1536";
-
-  return "1024x1024";
-}
-
-function normalizeImageCount(value: unknown) {
-  const count = Number(value);
-
-  if (!Number.isFinite(count)) return 1;
-  if (count < 1) return 1;
-  if (count > 4) return 4;
-
-  return Math.floor(count);
-}
-
-function normalizeString(value: unknown) {
-  return String(value || "").trim();
 }
 
 export async function POST(req: Request) {
   try {
     const user = await getRequestUser();
+    const planConfig = getPlanConfig(user.plan);
+
     const body = await req.json().catch(() => ({}));
 
-    const prompt = normalizeString(body.prompt);
-    const requestedModel = normalizeString(body.model);
-    const aspectRatio = normalizeString(body.aspectRatio) || "1:1";
-    const style = normalizeString(body.style);
-    const quality = normalizeString(body.quality);
-    const negativePrompt = normalizeString(body.negativePrompt);
-    const presetId = normalizeString(body.presetId);
+    const prompt = String(body.prompt || "").trim();
+    const requestedModel = String(body.model || "").trim();
+    const aspectRatio = String(body.aspectRatio || "1:1");
     const imageCount = normalizeImageCount(body.imageCount);
-    const brandKit =
-      body.brandKit && typeof body.brandKit === "object"
-        ? body.brandKit
-        : undefined;
 
     if (!prompt) {
       return Response.json(
@@ -99,7 +87,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const planConfig = getPlanConfig(user.plan);
     const monthlyImageCount = await getMonthlyImageCount(user.id);
 
     if (monthlyImageCount + imageCount > planConfig.monthlyImages) {
@@ -115,74 +102,90 @@ export async function POST(req: Request) {
       );
     }
 
-    const defaultModel = getDefaultImageModelForPlan(user.plan);
-    const safeRequestedModel = getRastinoImageModel(requestedModel)
-      ? requestedModel
-      : defaultModel;
+    if (user.plan !== "plus" && user.plan !== "pro") {
+      const dailyImageCount = await getDailyImageCount(user.id);
 
-    const canUseRequestedModel =
+      if (dailyImageCount + imageCount > 1) {
+        return Response.json(
+          {
+            error: "در پلن رایگان فقط روزی ۱ تصویر می‌توانی بسازی.",
+            code: "FREE_DAILY_IMAGE_LIMIT_REACHED",
+            dailyLimit: 1,
+            used: dailyImageCount,
+            requested: imageCount,
+          },
+          { status: 429 }
+        );
+      }
+    }
+
+    const defaultModel = getDefaultImageModelForPlan(user.plan);
+    const requestedExists = getRastinoImageModel(requestedModel);
+    const safeRequestedModel = requestedExists ? requestedModel : defaultModel;
+
+    const canUseRequested =
       user.role === "admin"
         ? canAdminUseImageModel(safeRequestedModel)
         : canUseImageModel(user.plan, safeRequestedModel);
 
-    const selectedModel = canUseRequestedModel ? safeRequestedModel : defaultModel;
-
-    console.log("[IMAGE MODEL SELECTED]", {
-      requestedModel,
-      safeRequestedModel,
-      selectedModel,
-      defaultModel,
-      userPlan: user.plan,
-      userRole: user.role,
-    });
-
+    const selectedModel = canUseRequested ? safeRequestedModel : defaultModel;
     const modelInfo = getRastinoImageModel(selectedModel);
-    const creditCostPerImage = modelInfo?.creditCost || 1;
-    const totalCreditCost = creditCostPerImage * imageCount;
-    const monthlyCreditUsage = await getMonthlyCreditUsage(user.id);
 
-    if (monthlyCreditUsage + totalCreditCost > planConfig.monthlyCredits) {
+    if (!modelInfo) {
       return Response.json(
-        {
-          error: `اعتبار ماهانه پلن ${planConfig.nameFa} کافی نیست.`,
-          code: "MONTHLY_CREDIT_LIMIT_REACHED",
-          monthlyLimit: planConfig.monthlyCredits,
-          used: monthlyCreditUsage,
-          requested: totalCreditCost,
-        },
-        { status: 429 }
+        { error: "مدل تصویر معتبر نیست." },
+        { status: 400 }
       );
     }
 
-    const generatedImages: {
-      url: string;
-      originalUrl: string | null;
-      model: string;
-    }[] = [];
+    const generatedImages = [];
 
     for (let index = 0; index < imageCount; index += 1) {
-      const result = await generateGapGptImage({
-        model: selectedModel,
+      const result = await generateAvalaiImage({
+        model: modelInfo,
         prompt,
         size: normalizeAspectRatio(aspectRatio),
       });
 
-      generatedImages.push({
-        url: result.url,
-        originalUrl: result.originalUrl,
-        model: result.model,
-      });
+      generatedImages.push(
+        ...result.images.map((image) => ({
+          url: image.url,
+          originalUrl: image.originalUrl || image.url,
+          model: result.model,
+        }))
+      );
     }
 
-    await prisma.$transaction(
-      generatedImages.map((image) =>
+    const externalImages = generatedImages.slice(0, imageCount);
+
+    if (externalImages.length === 0) {
+      throw new Error("No image returned from AvalAI.");
+    }
+
+    const finalImages = await Promise.all(
+      externalImages.map(async (image) => {
+        const stored = await storeGeneratedImageLocally(image.url);
+
+        return {
+          ...image,
+          url: stored.url,
+          originalUrl: image.originalUrl || stored.originalUrl || image.url,
+        };
+      })
+    );
+
+    const creditCostPerImage = getImageModelCreditCost(selectedModel);
+    const totalCreditCost = creditCostPerImage * finalImages.length;
+
+    await prisma.$transaction([
+      ...finalImages.map((image) =>
         prisma.usageLog.create({
           data: {
             userId: user.id,
             scope: "image",
             action: "generate",
             model: image.model,
-            provider: "gapgpt",
+            provider: "avalai",
             inputTokens: 0,
             outputTokens: 0,
             totalTokens: 0,
@@ -190,70 +193,63 @@ export async function POST(req: Request) {
             creditCost: creditCostPerImage,
           },
         })
-      )
-    );
-
-    await prisma.$transaction(
-      generatedImages.map((image) =>
+      ),
+      ...finalImages.map((image) =>
         prisma.imageGeneration.create({
           data: {
             userId: user.id,
             prompt,
-            negativePrompt: negativePrompt || null,
+            negativePrompt: String(body.negativePrompt || "").trim() || null,
             model: image.model,
-            style: style || null,
-            aspectRatio: aspectRatio || null,
-            quality: quality || null,
+            style: String(body.style || "") || null,
+            aspectRatio,
+            quality: String(body.quality || "") || null,
             imageUrl: image.url,
             metadata: JSON.stringify({
-              provider: "gapgpt",
+              provider: "avalai",
               originalUrl: image.originalUrl,
               requestedModel,
               selectedModel,
-              presetId: presetId || undefined,
-              brandKit,
-              storage: "public/generated/images",
               creditCost: creditCostPerImage,
+              imageCount: finalImages.length,
+              size: normalizeAspectRatio(aspectRatio),
             }),
           },
         })
-      )
-    );
-
-    console.log("[IMAGE GENERATED]", {
-      provider: "gapgpt",
-      requestedModel,
-      safeRequestedModel,
-      selectedModel,
-      userPlan: user.plan,
-      userRole: user.role,
-      imageCount: generatedImages.length,
-      creditCost: totalCreditCost,
-      firstImageUrl: generatedImages[0]?.url,
-    });
+      ),
+    ]);
 
     return Response.json({
-      imageUrl: generatedImages[0]?.url,
-      originalUrl: generatedImages[0]?.originalUrl,
-      images: generatedImages,
+      imageUrl: finalImages[0]?.url,
+      originalUrl: finalImages[0]?.originalUrl,
+      images: finalImages,
       model: selectedModel,
-      provider: "gapgpt",
+      provider: "avalai",
       creditCost: totalCreditCost,
       creditCostPerImage,
-      imageCount: generatedImages.length,
-      storage: "public/generated/images",
+      imageCount: finalImages.length,
     });
   } catch (error) {
-    if (isUnauthorizedError(error)) return unauthorizedResponse();
+    if (isUnauthorizedError(error)) {
+      return unauthorizedResponse();
+    }
 
-    console.error("[IMAGE GENERATE ERROR]", error);
+    console.error("[AVALAI IMAGE GENERATE ERROR]", error);
+
+    const message = error instanceof Error ? error.message : "unknown_error";
+    const insufficientCredit =
+      message.toLowerCase().includes("insufficient credit") ||
+      message.toLowerCase().includes("remaining balance");
 
     return Response.json(
       {
-        error: "تولید تصویر ناموفق بود. کمی بعد دوباره تلاش کن.",
-        detail: error instanceof Error ? error.message : "unknown_error",
+        error: insufficientCredit
+          ? "اعتبار سرویس تولید تصویر کافی نیست. لطفاً بعداً دوباره تلاش کنید."
+          : "تولید تصویر ناموفق بود. کمی بعد دوباره تلاش کن.",
+        code: insufficientCredit ? "AVALAI_INSUFFICIENT_CREDIT" : "IMAGE_GENERATION_FAILED",
+        detail: message,
       },
-      { status: 500 }
+      { status: insufficientCredit ? 402 : 500 }
     );
   }
 }

@@ -28,27 +28,50 @@ export function PlanPurchaseButton({
     try {
       const res = await fetch("/api/payments/zibal/request", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
-        body: JSON.stringify({ planId }),
+        body: JSON.stringify({
+          planId,
+        }),
       });
 
-      const data = await res.json().catch(() => null);
+      const rawText = await res.text();
+      let data: { redirectUrl?: string; error?: string } | null = null;
+
+      try {
+        data = rawText ? (JSON.parse(rawText) as { redirectUrl?: string; error?: string }) : null;
+      } catch {
+        data = null;
+      }
+
+      console.log("[ZIBAL PAYMENT RESPONSE]", {
+        status: res.status,
+        ok: res.ok,
+        rawText,
+        data,
+      });
 
       if (res.status === 401) {
-        setMessage("برای خرید پلن، اول وارد حساب کاربری شو.");
-        window.location.href = "/app";
+        setMessage("برای خرید پلن، اول وارد حساب کاربری شو. اگر وارد شدی، صفحه را رفرش کن و دوباره امتحان کن.");
         return;
       }
 
-      if (!res.ok || !data?.redirectUrl) {
-        setMessage(data?.error || "شروع پرداخت ناموفق بود.");
+      if (!res.ok) {
+        setMessage(data?.error || rawText || `شروع پرداخت ناموفق بود. کد خطا: ${res.status}`);
         return;
       }
 
-      window.location.href = data.redirectUrl;
-    } catch {
-      setMessage("اتصال به درگاه ناموفق بود. دوباره تلاش کن.");
+      if (!data?.redirectUrl) {
+        setMessage("درگاه آدرس پرداخت برنگرداند. Console مرورگر را بررسی کن.");
+        return;
+      }
+
+      window.location.assign(data.redirectUrl);
+    } catch (error) {
+      console.error("[ZIBAL PAYMENT CLIENT ERROR]", error);
+      setMessage("اتصال به درگاه ناموفق بود. Console مرورگر را بررسی کن.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +83,7 @@ export function PlanPurchaseButton({
         type="button"
         onClick={startPayment}
         disabled={loading}
-        className="w-full rounded-2xl bg-white px-5 py-4 text-sm font-black text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-2xl bg-white px-5 py-4 text-sm font-black text-black shadow-[0_18px_45px_rgba(255,255,255,0.08)] transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading
           ? "در حال انتقال به درگاه..."

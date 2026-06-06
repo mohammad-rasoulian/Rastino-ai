@@ -1,6 +1,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PlanPurchaseButton } from "@/components/pricing/PlanPurchaseButton";
 import {
   AccountUser,
   accountPlans,
@@ -22,6 +23,7 @@ export function AccountPanel({
   onLogout,
 }: AccountPanelProps) {
   const planLabel = getPlanLabel(user?.plan);
+  const currentPlan = user?.plan || "free";
 
   if (loadingUser) {
     return (
@@ -80,15 +82,18 @@ export function AccountPanel({
 
       <section className="account-panel-card">
         <div className="mb-4">
-          <p className="text-sm font-black">پلن‌ها</p>
-          <p className="mt-1 text-xs r-muted">
-            فعلاً نمایشی است؛ بعداً به پرداخت و محدودیت مصرف وصل می‌شود.
+          <p className="text-xs font-black uppercase tracking-[0.18em] r-muted">
+            Subscription
+          </p>
+          <h3 className="mt-2 text-lg font-black">خرید و ارتقا پلن</h3>
+          <p className="mt-2 text-xs leading-6 r-muted">
+            پلن موردنظرت را انتخاب کن؛ بعد از کلیک، مستقیم وارد درگاه پرداخت امن زیبال می‌شوی.
           </p>
         </div>
 
         <div className="space-y-3">
           {accountPlans.map((plan) => {
-            const active = plan.name.toLowerCase() === planLabel.toLowerCase();
+            const active = currentPlan === plan.id;
 
             return (
               <div
@@ -113,12 +118,27 @@ export function AccountPanel({
                 </div>
 
                 <div className="grid gap-2">
-                  {plan.features.map((feature) => (
+                  {plan.features.slice(0, 4).map((feature) => (
                     <p key={feature} className="text-xs leading-6 r-muted">
                       ✓ {feature}
                     </p>
                   ))}
                 </div>
+
+                {active ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-5 w-full cursor-not-allowed rounded-2xl bg-white px-5 py-4 text-sm font-black text-black opacity-70"
+                  >
+                    این پلن هم‌اکنون فعال است
+                  </button>
+                ) : (
+                  <PlanPurchaseButton
+                    planId={plan.id}
+                    priceToman={plan.priceToman}
+                  />
+                )}
               </div>
             );
           })}
