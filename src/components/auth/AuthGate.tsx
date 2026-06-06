@@ -3,6 +3,25 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = 8000
+) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+
 type AuthUser = {
   id?: string;
   mobile?: string;
@@ -98,10 +117,7 @@ function AuthGateView({ children }: AuthGateProps) {
 
     async function loadUser() {
       try {
-        const response = await fetch("/api/auth/me", {
-          cache: "no-store",
-          credentials: "include",
-        });
+        const response = await fetchWithTimeout("/api/auth/me", { credentials: "include", cache: "no-store" }, 8000);
 
         const data = await response.json().catch(() => null);
         const currentUser = data?.user || data;
@@ -122,6 +138,17 @@ function AuthGateView({ children }: AuthGateProps) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      console.warn("[AUTH HARD RECOVERY] Boot took too long; releasing the UI.");
+      setBootRecovered(true);
+      setLoading(false);
+    }, 4500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
 
   async function requestOtp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
