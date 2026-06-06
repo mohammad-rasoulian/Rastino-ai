@@ -83,7 +83,8 @@ export function PlanPurchaseButton({
         type="button"
         onClick={startPayment}
         disabled={loading}
-        className="w-full rounded-2xl bg-white px-5 py-4 text-sm font-black text-black shadow-[0_18px_45px_rgba(255,255,255,0.08)] transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+        style={{ backgroundColor: "#ffffff", color: "#000000" }}
+        className="w-full rounded-2xl border border-white bg-white px-5 py-4 text-sm font-black text-black shadow-[0_18px_45px_rgba(255,255,255,0.12)] transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading
           ? "در حال انتقال به درگاه..."

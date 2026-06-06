@@ -129,7 +129,7 @@ export function AccountPanel({
                   <button
                     type="button"
                     disabled
-                    className="mt-5 w-full cursor-not-allowed rounded-2xl bg-white px-5 py-4 text-sm font-black text-black opacity-70"
+                    className="mt-5 w-full cursor-not-allowed rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-4 text-sm font-black text-white opacity-80"
                   >
                     این پلن هم‌اکنون فعال است
                   </button>
