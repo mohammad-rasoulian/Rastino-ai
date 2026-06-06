@@ -81,6 +81,8 @@ function StepCard({
 
 function AuthGateView({ children }: AuthGateProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [bootRecovered, setBootRecovered] = useState(false);
+  void bootRecovered;
   const [isChecking, setIsChecking] = useState(true);
   const [step, setStep] = useState<"identity" | "otp">("identity");
 
@@ -143,7 +145,6 @@ function AuthGateView({ children }: AuthGateProps) {
     const timeoutId = window.setTimeout(() => {
       console.warn("[AUTH HARD RECOVERY] Boot took too long; releasing the UI.");
       setBootRecovered(true);
-      setLoading(false);
     }, 4500);
 
     return () => window.clearTimeout(timeoutId);
